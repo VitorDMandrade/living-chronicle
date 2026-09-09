@@ -4,6 +4,9 @@ import { ActCard } from './components/ActCard';
 import { ChronicleHeader } from './components/ChronicleHeader';
 import { DiplomaticDispatch } from './components/DiplomaticDispatch';
 import { ChapterDrawer } from './components/ChapterDrawer';
+import { FrictionNodesOverlay } from './components/FrictionNodesOverlay';
+import { TelegraphCardModal } from './components/TelegraphCardModal';
+import { FrictionNode } from './data/friction-nodes';
 import { IMPERIALISM_CHAPTER } from './data/imperialism-chapter';
 import { useScrollProgress } from './hooks/useScrollProgress';
 import { sound } from './lib/audio';
@@ -11,6 +14,7 @@ import { sound } from './lib/audio';
 export function App() {
   const [currentChapterId, setCurrentChapterId] = useState('imperialism-xix');
   const [isCodexOpen, setIsCodexOpen] = useState(false);
+  const [selectedFrictionNode, setSelectedFrictionNode] = useState<FrictionNode | null>(null);
   const chapter = IMPERIALISM_CHAPTER;
   const scrollProgress = useScrollProgress();
   const activeActIndex = Math.min(
@@ -49,6 +53,18 @@ export function App() {
         videoSrc="/assets/video/imperialism_bg.mp4"
       />
 
+      {/* Vetores Cartográficos Táteis (Nós de Fricção no Ato II e Ato III) */}
+      <FrictionNodesOverlay
+        scrollProgress={scrollProgress}
+        onSelectNode={(node) => setSelectedFrictionNode(node)}
+      />
+
+      {/* Ficha Telegráfica Confidencial Flutuante */}
+      <TelegraphCardModal
+        node={selectedFrictionNode}
+        onClose={() => setSelectedFrictionNode(null)}
+      />
+
       {/* Topbar com Breadcrumb, Indicador Acústico e Códice */}
       <ChronicleHeader
         currentActTitle={chapter.acts[activeActIndex].title}
@@ -74,14 +90,17 @@ export function App() {
           <ActCard key={act.id} act={act} isActive={activeActIndex === idx} />
         ))}
 
+        {/* Despacho Diplomático com Chancela Tátil de Cera Fundida */}
         <DiplomaticDispatch />
       </main>
 
-      <footer className="fixed bottom-4 left-0 right-0 text-center pointer-events-none z-30">
-        <span className="text-[10px] font-mono text-[#9c9486] uppercase tracking-widest">
-          Role para desdobrar a partilha colonial e as tensões geopolíticas
-        </span>
-      </footer>
+      {scrollProgress < 0.85 && (
+        <footer className="fixed bottom-4 left-0 right-0 text-center pointer-events-none z-30 transition-opacity duration-500">
+          <span className="text-[10px] font-mono text-[#9c9486] uppercase tracking-widest">
+            Role para desdobrar a partilha colonial e as tensões geopolíticas
+          </span>
+        </footer>
+      )}
     </div>
   );
 }

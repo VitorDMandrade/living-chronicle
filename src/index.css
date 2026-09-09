@@ -11,6 +11,11 @@
   --colonial-crimson: #9e2a2b;      /* Linhas pontilhadas da Partilha de Berlim */
   --brass-patina: #c69b3f;          /* Compasso de navegação e ferragens */
   --wax-seal: #801818;              /* Despacho diplomático final */
+  --wax-melt-hot: #b91c1c;         /* Cera rubra líquida recém-derramada */
+  --wax-stamp-core: #7f1d1d;       /* Núcleo denso do selo resfriado */
+  --telegraph-paper: #f4ede2;      /* Papel fino de fita telegráfica vitoriana */
+  --telegraph-ink: #1f2937;        /* Tinta desbotada de chancelaria */
+  --gold-emboss: #d4af37;          /* Brasão em relevo de bronze prensado */
 }
 
 body {

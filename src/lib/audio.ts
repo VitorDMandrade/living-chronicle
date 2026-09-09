@@ -143,6 +143,34 @@ class SoundEngine {
     osc.stop(now + 0.04);
   }
 
+  /**
+   * Rajada rítmica de pulsos de código Morse para recepção de despachos telegráficos
+   */
+  public playMorseBurst(): void {
+    const ctx = this.initContext();
+    this.triggerDucking(0.12, 0.4);
+    const now = ctx.currentTime;
+    const intervals = [0, 0.05, 0.12, 0.17, 0.26]; // Cadência mecânica de telégrafo
+
+    intervals.forEach((timeOffset) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1080, now + timeOffset);
+
+      gain.gain.setValueAtTime(0.09, now + timeOffset);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + timeOffset + 0.035);
+
+      osc.connect(gain);
+      if (this.sfxGain) gain.connect(this.sfxGain);
+      else gain.connect(ctx.destination);
+
+      osc.start(now + timeOffset);
+      osc.stop(now + timeOffset + 0.04);
+    });
+  }
+
   public playWaxSealImpact(): void {
     const ctx = this.initContext();
     this.triggerDucking(0.04, 0.9);
@@ -260,4 +288,8 @@ export function startSteamAmbience(enabled = true): void {
 
 export function playImperialGavel(enabled = true): void {
   if (enabled) sound.playWaxSealImpact();
+}
+
+export function playMorseBurst(enabled = true): void {
+  if (enabled) sound.playMorseBurst();
 }
