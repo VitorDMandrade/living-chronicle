@@ -1,12 +1,17 @@
 import React, { useRef, useEffect } from 'react';
 import { ImperialismCanvasEngine } from '../lib/canvas-engine';
 import { SceneParams } from '../types/chronicle';
+import { VideoBackdrop } from './VideoBackdrop';
 
 interface StageCanvasProps {
   sceneParams: SceneParams;
+  videoSrc?: string;
 }
 
-export const StageCanvas: React.FC<StageCanvasProps> = ({ sceneParams }) => {
+export const StageCanvas: React.FC<StageCanvasProps> = ({
+  sceneParams,
+  videoSrc = '/assets/video/imperialism_bg.mp4'
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef(new ImperialismCanvasEngine());
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -61,8 +66,11 @@ export const StageCanvas: React.FC<StageCanvasProps> = ({ sceneParams }) => {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0">
-      <canvas ref={canvasRef} className="w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#06080b] via-transparent to-[#06080b]/80" />
+      {/* Camada 1: Vídeo de Fundo Cinemagraph */}
+      <VideoBackdrop videoSrc={videoSrc} />
+
+      {/* Camada 2: Canvas Interativo com Mapa, Compasso e Linhas de Fronteira */}
+      <canvas ref={canvasRef} className="relative z-10 w-full h-full object-cover" />
     </div>
   );
 };

@@ -33,7 +33,10 @@ export function App() {
       onClick={handleFirstInteraction}
       className="min-h-screen bg-[#06080b] text-[#ede8dc] relative selection:bg-amber-950 selection:text-amber-200 cursor-default"
     >
-      <StageCanvas sceneParams={chapter.acts[activeActIndex].sceneParams} />
+      <StageCanvas
+        sceneParams={chapter.acts[activeActIndex].sceneParams}
+        videoSrc="/assets/video/imperialism_bg.mp4"
+      />
 
       <ChronicleHeader
         currentAct={activeActIndex}
