@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StageCanvas } from './components/StageCanvas';
 import { ActCard } from './components/ActCard';
 import { ChronicleHeader } from './components/ChronicleHeader';
+import { DiplomaticDispatch } from './components/DiplomaticDispatch';
 import { IMPERIALISM_CHAPTER } from './data/imperialism-chapter';
 import { useActiveIndex } from './hooks/useScrollProgress';
 import { startSteamAmbience, playTelegraphBeep, playImperialGavel } from './lib/audio';
@@ -23,7 +24,6 @@ export function App() {
     if (!audioStarted) return;
     playTelegraphBeep(true);
     if (activeActIndex === 1) {
-      // Impacto solene de carimbo na Conferência de Berlim
       playImperialGavel(true);
     }
   }, [activeActIndex, audioStarted]);
@@ -43,10 +43,12 @@ export function App() {
         totalActs={chapter.acts.length}
       />
 
-      <main className="relative z-10 max-w-xl mx-auto px-6 pt-36 pb-64 space-y-[70vh]">
+      <main className="relative z-10 max-w-xl mx-auto px-6 pt-36 pb-48 space-y-[70vh]">
         {chapter.acts.map((act, idx) => (
           <ActCard key={act.id} act={act} isActive={activeActIndex === idx} />
         ))}
+
+        <DiplomaticDispatch />
       </main>
 
       <footer className="fixed bottom-4 left-0 right-0 text-center pointer-events-none z-30">

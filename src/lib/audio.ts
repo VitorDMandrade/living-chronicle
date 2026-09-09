@@ -13,7 +13,6 @@ function getContext(): AudioContext | null {
   return audioCtx;
 }
 
-/** Inicia ambiência procedural de vapor industrial contínuo */
 export function startSteamAmbience(enabled = true) {
   if (!enabled) return;
   const ctx = getContext();
@@ -48,7 +47,6 @@ export function startSteamAmbience(enabled = true) {
   noise.start();
 }
 
-/** Telégrafo da Chancelaria (cliques rápidos e secos de despacho) */
 export function playTelegraphBeep(enabled = true) {
   if (!enabled) return;
   const ctx = getContext();
@@ -71,7 +69,6 @@ export function playTelegraphBeep(enabled = true) {
   osc.stop(now + 0.04);
 }
 
-/** Impacto solene de carimbo e bronze imperial (Conferência de Berlim) */
 export function playImperialGavel(enabled = true) {
   if (!enabled) return;
   const ctx = getContext();
@@ -91,4 +88,26 @@ export function playImperialGavel(enabled = true) {
   gain.connect(ctx.destination);
   osc.start(now);
   osc.stop(now + 0.35);
+}
+
+/** Som de carimbo de chancelaria com estalo de cera */
+export function playChancellerySeal(enabled = true) {
+  if (!enabled) return;
+  const ctx = getContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(170, now);
+  osc.frequency.exponentialRampToValueAtTime(34, now + 0.28);
+
+  gain.gain.setValueAtTime(0.35, now);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.28);
 }

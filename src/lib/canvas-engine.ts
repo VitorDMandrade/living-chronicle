@@ -2,18 +2,34 @@ import { SceneParams } from '../types/chronicle';
 
 export class ImperialismCanvasEngine {
   private time = 0;
+  private currentTiltX = 0;
+  private currentTiltY = 0;
 
   public render(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
-    params: SceneParams
+    params: SceneParams,
+    targetMouseX = 0,
+    targetMouseY = 0
   ) {
     this.time += 0.015;
+
+    // Interpolação suave do paralaxe inercial
+    this.currentTiltX += (targetMouseX - this.currentTiltX) * 0.04;
+    this.currentTiltY += (targetMouseY - this.currentTiltY) * 0.04;
+
     ctx.clearRect(0, 0, width, height);
 
     // 1. Fundo com vinheta de carvão e metalurgia
-    const bg = ctx.createRadialGradient(width / 2, height / 2, 40, width / 2, height / 2, width * 0.75);
+    const bg = ctx.createRadialGradient(
+      width / 2 + this.currentTiltX * 20,
+      height / 2 + this.currentTiltY * 20,
+      40,
+      width / 2,
+      height / 2,
+      width * 0.75
+    );
     bg.addColorStop(0, '#101520');
     bg.addColorStop(1, '#06080b');
     ctx.fillStyle = bg;
@@ -21,8 +37,8 @@ export class ImperialismCanvasEngine {
 
     // 2. Vapor industrial volumétrico (Chaminés da 2ª Revolução Industrial)
     for (let i = 0; i < 18; i++) {
-      const fogX = (Math.sin(this.time * 0.25 + i * 0.7) * 0.5 + 0.5) * width;
-      const fogY = height * 0.35 + i * 16;
+      const fogX = (Math.sin(this.time * 0.25 + i * 0.7) * 0.5 + 0.5) * width + this.currentTiltX * (i * 3);
+      const fogY = height * 0.35 + i * 16 + this.currentTiltY * (i * 2);
       const fogRad = 110 + Math.sin(this.time + i) * 40;
 
       const grad = ctx.createRadialGradient(fogX, fogY, 10, fogX, fogY, fogRad);
@@ -35,15 +51,15 @@ export class ImperialismCanvasEngine {
       ctx.fill();
     }
 
-    // 3. Projeção Cartográfica Abstrata do Continente Africano
-    const cx = width * 0.5;
-    const cy = height * 0.5;
+    // 3. Projeção Cartográfica Abstrata com deslocamento de paralaxe
+    const cx = width * 0.5 + this.currentTiltX * 35;
+    const cy = height * 0.5 + this.currentTiltY * 25;
 
     ctx.save();
     ctx.translate(cx, cy);
 
-    // Silhueta do continente em traço sutil
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.25)';
+    // Silhueta do continente africano em traço sutil
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.28)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(0, -110);
@@ -74,7 +90,7 @@ export class ImperialismCanvasEngine {
       ctx.lineTo(-50 + 140 * p, 40 + 20 * p);
       ctx.stroke();
 
-      // Linha Vertical 3 (Eixo Norte-Sul / Ferrovia Cairo-Cabo idealizada)
+      // Linha Vertical 3 (Eixo Norte-Sul)
       ctx.beginPath();
       ctx.moveTo(35, -90);
       ctx.lineTo(35, -90 + 220 * p);
@@ -83,14 +99,13 @@ export class ImperialismCanvasEngine {
       ctx.setLineDash([]);
     }
 
-    // 5. Engrenagens Industriais / Compasso Militar de Latão
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.4)';
+    // 5. Compasso de Latão e Mira Cartográfica
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.45)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(0, 0, 130, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Marcadores angulares do compasso cartográfico
     for (let a = 0; a < 12; a++) {
       const ang = (a / 12) * Math.PI * 2 + this.time * 0.05;
       const x1 = Math.cos(ang) * 124;
