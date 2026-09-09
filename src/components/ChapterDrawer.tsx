@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { sound } from '../lib/audio';
 
 export interface ChapterMeta {
@@ -39,56 +39,42 @@ export const AVAILABLE_CHAPTERS: ChapterMeta[] = [
 
 interface ChapterDrawerProps {
   currentChapterId: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onToggle: () => void;
   onSelectChapter: (id: string) => void;
 }
 
 export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
   currentChapterId,
+  isOpen,
+  onClose,
+  onToggle,
   onSelectChapter,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         sound.playTelegraphClick();
-        setIsOpen((prev) => !prev);
+        onToggle();
       } else if (e.key === 'Escape' && isOpen) {
         sound.playTelegraphClick();
-        setIsOpen(false);
+        onClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
-
-  const toggleDrawer = () => {
-    sound.playTelegraphClick();
-    setIsOpen(!isOpen);
-  };
+  }, [isOpen, onClose, onToggle]);
 
   return (
     <>
-      {/* Botão Gatilho Sóbrio na Topbar */}
-      <button
-        onClick={toggleDrawer}
-        aria-label="Abrir Códice de Matérias"
-        className="group fixed top-5 right-6 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full border border-stone-800/80 bg-stone-950/70 backdrop-blur-md text-xs tracking-widest uppercase transition-all duration-300 hover:border-stone-600 hover:bg-stone-900/90 text-stone-400 hover:text-stone-200"
-      >
-        <span className="w-2 h-2 rounded-full bg-amber-600/80 group-hover:scale-125 transition-transform" />
-        <span className="font-mono text-[11px]">Códice</span>
-        <kbd className="hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded bg-stone-900 text-stone-500 border border-stone-800">
-          ⌘K
-        </kbd>
-      </button>
-
       {/* Backdrop com Blur Suave */}
       {isOpen && (
         <div
           onClick={() => {
             sound.playTelegraphClick();
-            setIsOpen(false);
+            onClose();
           }}
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         />
@@ -111,7 +97,7 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
             <button
               onClick={() => {
                 sound.playTelegraphClick();
-                setIsOpen(false);
+                onClose();
               }}
               className="text-stone-500 hover:text-stone-200 text-sm font-mono p-2 transition-colors"
             >
@@ -131,7 +117,7 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
                     if (!isAvailable) return;
                     sound.playWaxSealImpact();
                     onSelectChapter(chapter.id);
-                    setIsOpen(false);
+                    onClose();
                   }}
                   className={`relative p-5 rounded-lg border transition-all duration-300 ${
                     isSelected

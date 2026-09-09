@@ -1,26 +1,31 @@
 import React, { useRef, useEffect } from 'react';
-import { ImperialismCanvasEngine } from '../lib/canvas-engine';
-import { SceneParams } from '../types/chronicle';
+import { ChronicleCanvasEngine } from '../lib/canvas-engine';
 import { VideoBackdrop } from './VideoBackdrop';
 
 interface StageCanvasProps {
-  sceneParams: SceneParams;
+  scrollProgress: number;
   videoSrc?: string;
 }
 
 export const StageCanvas: React.FC<StageCanvasProps> = ({
-  sceneParams,
-  videoSrc = '/assets/video/imperialism_bg.mp4'
+  scrollProgress,
+  videoSrc = '/assets/video/imperialism_bg.mp4',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const engineRef = useRef(new ImperialismCanvasEngine());
-  const mouseRef = useRef({ x: 0, y: 0 });
+  const engineRef = useRef<ChronicleCanvasEngine | null>(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const scrollRef = useRef(scrollProgress);
+
+  useEffect(() => {
+    scrollRef.current = scrollProgress;
+  }, [scrollProgress]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      mouseRef.current = { x: nx, y: ny };
+      mouseRef.current = {
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+      };
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -28,41 +33,28 @@ export const StageCanvas: React.FC<StageCanvasProps> = ({
   }, []);
 
   useEffect(() => {
-    let animId: number;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const engine = new ChronicleCanvasEngine(canvas);
+    engineRef.current = engine;
 
-    const loop = () => {
-      engineRef.current.render(
-        ctx,
-        canvas.width,
-        canvas.height,
-        sceneParams,
-        mouseRef.current.x,
-        mouseRef.current.y
-      );
-      animId = requestAnimationFrame(loop);
-    };
-
-    animId = requestAnimationFrame(loop);
+    engine.startLoop(() => ({
+      scrollProgress: scrollRef.current,
+      mouseX: mouseRef.current.x,
+      mouseY: mouseRef.current.y,
+    }));
 
     const handleResize = () => {
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
+      engine.handleResize();
     };
-    handleResize();
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(animId);
+      engine.stopLoop();
       window.removeEventListener('resize', handleResize);
     };
-  }, [sceneParams]);
+  }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0">

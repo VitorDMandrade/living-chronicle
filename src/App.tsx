@@ -5,18 +5,26 @@ import { ChronicleHeader } from './components/ChronicleHeader';
 import { DiplomaticDispatch } from './components/DiplomaticDispatch';
 import { ChapterDrawer } from './components/ChapterDrawer';
 import { IMPERIALISM_CHAPTER } from './data/imperialism-chapter';
-import { useActiveIndex } from './hooks/useScrollProgress';
+import { useScrollProgress } from './hooks/useScrollProgress';
 import { sound } from './lib/audio';
 
 export function App() {
   const [currentChapterId, setCurrentChapterId] = useState('imperialism-xix');
+  const [isCodexOpen, setIsCodexOpen] = useState(false);
   const chapter = IMPERIALISM_CHAPTER;
-  const activeActIndex = useActiveIndex(chapter.acts.length);
+  const scrollProgress = useScrollProgress();
+  const activeActIndex = Math.min(
+    chapter.acts.length - 1,
+    Math.floor(scrollProgress * chapter.acts.length)
+  );
   const [audioStarted, setAudioStarted] = useState(false);
+
+  const romanNumerals = ['ATO I', 'ATO II', 'ATO III'];
 
   const handleFirstInteraction = () => {
     if (!audioStarted) {
       sound.startSteamDrone();
+      sound.mountBGM('/assets/audio/imperialism_theme.mp3');
       sound.playTelegraphClick();
       setAudioStarted(true);
     }
@@ -35,22 +43,29 @@ export function App() {
       onClick={handleFirstInteraction}
       className="min-h-screen bg-[#090a0c] text-[#ede5d8] relative selection:bg-amber-950 selection:text-amber-200 cursor-default"
     >
+      {/* Palco Gráfico Unificado (Living Canvas Vídeo + Partilha de Berlim 2D) */}
       <StageCanvas
-        sceneParams={chapter.acts[activeActIndex].sceneParams}
+        scrollProgress={scrollProgress}
         videoSrc="/assets/video/imperialism_bg.mp4"
       />
 
+      {/* Topbar com Breadcrumb, Indicador Acústico e Códice */}
       <ChronicleHeader
-        currentAct={activeActIndex}
-        discipline={chapter.discipline}
-        epoch={chapter.epoch}
-        title={chapter.title}
-        totalActs={chapter.acts.length}
+        currentActTitle={chapter.acts[activeActIndex].title}
+        actRoman={romanNumerals[activeActIndex] || 'ATO I'}
+        scrollPercent={scrollProgress * 100}
+        onOpenCodex={() => {
+          sound.playTelegraphClick();
+          setIsCodexOpen(true);
+        }}
       />
 
       {/* Códice Seletor Oculto (Cmd+K / Gaveteiro Flutuante) */}
       <ChapterDrawer
         currentChapterId={currentChapterId}
+        isOpen={isCodexOpen}
+        onClose={() => setIsCodexOpen(false)}
+        onToggle={() => setIsCodexOpen((prev) => !prev)}
         onSelectChapter={(id) => setCurrentChapterId(id)}
       />
 
