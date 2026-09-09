@@ -19,12 +19,17 @@ export const VideoBackdrop: React.FC<VideoBackdropProps> = ({ videoSrc }) => {
         muted
         playsInline
         onError={() => setHasError(true)}
-        className="w-full h-full object-cover opacity-30 mix-blend-screen filter contrast-125 brightness-90 transition-opacity duration-1000"
+        className="w-full h-full object-cover opacity-45 mix-blend-screen filter contrast-125 brightness-95 transition-opacity duration-1000"
       >
         <source src={videoSrc} type="video/mp4" />
       </video>
-      {/* Vinheta escura de contraste para garantir leitura perfeita dos cartões */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#06080b] via-[#06080b]/60 to-[#06080b]/90" />
+      {/* Overlay radial concêntrico para blindar o contraste dos textos dos atos */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(9,10,12,0.25) 0%, rgba(9,10,12,0.88) 100%)'
+        }}
+      />
     </div>
   );
 };

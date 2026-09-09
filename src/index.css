@@ -4,12 +4,19 @@
 
 :root {
   color-scheme: dark;
+  --canvas-deep-void: #090a0c;      /* Fundo base OLED para fusão de vídeo */
+  --ink-vellum: #121316;            /* Superfície das lâminas editoriais */
+  --parchment-bone: #ede5d8;        /* Tipografia de alto contraste sem ofuscar */
+  --parchment-muted: #9c9486;       /* Nexo causal e notas secundárias */
+  --colonial-crimson: #9e2a2b;      /* Linhas pontilhadas da Partilha de Berlim */
+  --brass-patina: #c69b3f;          /* Compasso de navegação e ferragens */
+  --wax-seal: #801818;              /* Despacho diplomático final */
 }
 
 body {
   margin: 0;
-  background-color: #06080b;
-  color: #ede8dc;
+  background-color: var(--canvas-deep-void);
+  color: var(--parchment-bone);
   font-family: 'Lora', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;

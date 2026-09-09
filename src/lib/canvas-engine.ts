@@ -15,13 +15,13 @@ export class ImperialismCanvasEngine {
   ) {
     this.time += 0.015;
 
-    // Interpolação suave do paralaxe inercial
+    // Interpolação suave do paralaxe inercial (lerp)
     this.currentTiltX += (targetMouseX - this.currentTiltX) * 0.04;
     this.currentTiltY += (targetMouseY - this.currentTiltY) * 0.04;
 
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Fundo com vinheta de carvão e metalurgia
+    // 1. Fundo com vinheta translúcida para permitir a visão do Living Canvas (vídeo cinemagraph)
     const bg = ctx.createRadialGradient(
       width / 2 + this.currentTiltX * 20,
       height / 2 + this.currentTiltY * 20,
@@ -30,8 +30,8 @@ export class ImperialismCanvasEngine {
       height / 2,
       width * 0.75
     );
-    bg.addColorStop(0, '#101520');
-    bg.addColorStop(1, '#06080b');
+    bg.addColorStop(0, 'rgba(16, 21, 32, 0.15)');
+    bg.addColorStop(1, 'rgba(6, 8, 11, 0.55)');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 
@@ -42,7 +42,7 @@ export class ImperialismCanvasEngine {
       const fogRad = 110 + Math.sin(this.time + i) * 40;
 
       const grad = ctx.createRadialGradient(fogX, fogY, 10, fogX, fogY, fogRad);
-      grad.addColorStop(0, `rgba(28, 35, 48, ${params.steamDensity * 0.3})`);
+      grad.addColorStop(0, `rgba(28, 35, 48, ${params.steamDensity * 0.25})`);
       grad.addColorStop(1, 'rgba(6, 8, 11, 0)');
 
       ctx.fillStyle = grad;
@@ -58,9 +58,9 @@ export class ImperialismCanvasEngine {
     ctx.save();
     ctx.translate(cx, cy);
 
-    // Silhueta do continente africano em traço sutil
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.28)';
-    ctx.lineWidth = 1.5;
+    // Silhueta do continente africano em traço nítido
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(0, -110);
     ctx.quadraticCurveTo(80, -90, 85, -20);
@@ -100,8 +100,8 @@ export class ImperialismCanvasEngine {
     }
 
     // 5. Compasso de Latão e Mira Cartográfica
-    ctx.strokeStyle = 'rgba(217, 119, 6, 0.45)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.5)';
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.arc(0, 0, 130, 0, Math.PI * 2);
     ctx.stroke();
