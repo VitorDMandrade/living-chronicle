@@ -43,3 +43,177 @@ body {
 .ease-editorial {
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ==========================================================================
+   Modern HTML5 <dialog> Top-Layer Animations (Google Chrome Modern Web Standard)
+   Uses: @starting-style, transition-behavior: allow-discrete, and overlay.
+   ========================================================================== */
+
+/* 1. Modal Centralizado Padrão (Ficha Telegráfica Confidencial) */
+dialog.modern-dialog {
+  border: none;
+  background: transparent;
+  padding: 1.5rem;
+  margin: auto;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow: visible;
+  outline: none;
+
+  /* Estado Base / Saída */
+  opacity: 0;
+  transform: scale(0.95) translateY(12px);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+}
+
+dialog.modern-dialog[open] {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+}
+
+dialog.modern-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  transition:
+    display 0.35s allow-discrete,
+    overlay 0.35s allow-discrete,
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+dialog.modern-dialog[open]::backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+
+  @starting-style {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+/* 2. Drawer Lateral à Direita (Códice de Lições) */
+dialog.modern-drawer {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0 0 0 auto;
+  height: 100vh;
+  max-height: 100vh;
+  width: 100%;
+  max-width: 28rem;
+  overflow: visible;
+  outline: none;
+
+  /* Estado Base / Saída */
+  opacity: 0;
+  transform: translateX(100%);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.45s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+}
+
+dialog.modern-drawer[open] {
+  opacity: 1;
+  transform: translateX(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+dialog.modern-drawer::backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  transition:
+    display 0.45s allow-discrete,
+    overlay 0.45s allow-discrete,
+    background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+dialog.modern-drawer[open]::backdrop {
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+
+  @starting-style {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+/* 3. Bottom Sheet para Telas Menores (Dossiês de Fricção Mobile) */
+dialog.modern-sheet {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: auto 0 0 0;
+  width: 100vw;
+  max-width: 100vw;
+  overflow: visible;
+  outline: none;
+
+  /* Estado Base / Saída */
+  opacity: 0;
+  transform: translateY(100%);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.4s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+}
+
+dialog.modern-sheet[open] {
+  opacity: 1;
+  transform: translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+dialog.modern-sheet::backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  transition:
+    display 0.4s allow-discrete,
+    overlay 0.4s allow-discrete,
+    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+dialog.modern-sheet[open]::backdrop {
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+
+  @starting-style {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+/* Respeito a usuários sensíveis a movimento */
+@media (prefers-reduced-motion: reduce) {
+  dialog.modern-dialog,
+  dialog.modern-drawer,
+  dialog.modern-sheet {
+    transform: none !important;
+    transition-duration: 0.1s !important;
+  }
+  dialog.modern-dialog[open],
+  dialog.modern-drawer[open],
+  dialog.modern-sheet[open] {
+    @starting-style {
+      transform: none !important;
+    }
+  }
+}

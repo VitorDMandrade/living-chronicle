@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FRICTION_NODES, FrictionNode } from '../data/friction-nodes';
 import { sound } from '../lib/audio';
 
@@ -16,6 +16,7 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [showMapMarkers, setShowMapMarkers] = useState(true);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const mobileDialogRef = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,6 +36,22 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  // Sincroniza abertura e fechamento da gaveta mobile usando a API nativa de dialog
+  useEffect(() => {
+    const dialog = mobileDialogRef.current;
+    if (!dialog) return;
+
+    if (isMobileSheetOpen) {
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    } else {
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+  }, [isMobileSheetOpen]);
 
   // Transição contínua e suave de opacidade (evita aparecimento/desaparecimento abrupto)
   let overlayOpacity = 0;
@@ -61,7 +78,10 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
   const handleNodeClick = (node: FrictionNode) => {
     sound.playMorseBurst();
     onSelectNode(node);
-    if (isMobileSheetOpen) setIsMobileSheetOpen(false);
+    if (isMobileSheetOpen) {
+      setIsMobileSheetOpen(false);
+      mobileDialogRef.current?.close();
+    }
   };
 
   const handleNodeHover = (node: FrictionNode) => {
@@ -72,6 +92,27 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
   const handleToggleMarkers = () => {
     sound.playTelegraphClick();
     setShowMapMarkers((prev) => !prev);
+  };
+
+  const handleCloseMobileSheet = () => {
+    sound.playTelegraphClick();
+    mobileDialogRef.current?.close();
+  };
+
+  const handleMobileDialogClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+    const dialog = mobileDialogRef.current;
+    if (!dialog || event.target !== dialog) return;
+
+    const rect = dialog.getBoundingClientRect();
+    const isInside =
+      rect.top <= event.clientY &&
+      event.clientY <= rect.bottom &&
+      rect.left <= event.clientX &&
+      event.clientX <= rect.right;
+
+    if (!isInside) {
+      handleCloseMobileSheet();
+    }
   };
 
   return (
@@ -221,31 +262,35 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
         </button>
       </div>
 
-      {/* Gaveta Inferior Deslizante em Telas Mobile / Tablet com Backdrop Animado */}
-      <div
-        className={`fixed inset-0 z-50 lg:hidden flex flex-col justify-end transition-all duration-500 ease-editorial ${
-          isMobileSheetOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+      {/* Modern HTML5 <dialog> Bottom Sheet para Telas Mobile / Tablet */}
+      <dialog
+        ref={mobileDialogRef}
+        onClose={() => setIsMobileSheetOpen(false)}
+        onCancel={(e) => {
+          e.preventDefault();
+          handleCloseMobileSheet();
+        }}
+        onClick={handleMobileDialogClick}
+        aria-labelledby="friction-sheet-title"
+        aria-modal="true"
+        closedby="any"
+        className="modern-sheet"
       >
-        <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-editorial"
-          onClick={() => setIsMobileSheetOpen(false)}
-        />
-        <div
-          className={`relative z-10 bg-[#12141a] border-t border-stone-800 rounded-t-2xl p-5 shadow-2xl space-y-3 transform transition-transform duration-500 ease-editorial ${
-            isMobileSheetOpen ? 'translate-y-0' : 'translate-y-full'
-          }`}
-        >
+        <div className="relative w-full bg-[#12141a] border-t border-stone-800 rounded-t-2xl p-5 shadow-2xl space-y-3">
           <div className="flex items-center justify-between border-b border-stone-800 pb-3">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              <span className="font-mono text-xs uppercase tracking-wider text-amber-400 font-bold">
+              <span
+                id="friction-sheet-title"
+                className="font-mono text-xs uppercase tracking-wider text-amber-400 font-bold"
+              >
                 Dossiês de Fricção Geopolítica
               </span>
             </div>
             <button
-              onClick={() => setIsMobileSheetOpen(false)}
-              className="w-6 h-6 rounded-full bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center text-xs font-mono transition-colors"
+              onClick={handleCloseMobileSheet}
+              className="w-6 h-6 rounded-full bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center text-xs font-mono transition-colors cursor-pointer"
+              title="Fechar (Esc)"
             >
               ✕
             </button>
@@ -271,7 +316,7 @@ export const FrictionNodesOverlay: React.FC<FrictionNodesOverlayProps> = ({
             ))}
           </div>
         </div>
-      </div>
+      </dialog>
     </>
   );
 };

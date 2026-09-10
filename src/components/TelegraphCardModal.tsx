@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FrictionNode } from '../data/friction-nodes';
 import { sound } from '../lib/audio';
 
@@ -8,73 +8,84 @@ interface TelegraphCardModalProps {
 }
 
 export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, onClose }) => {
-  const [activeNode, setActiveNode] = useState<FrictionNode | null>(null);
-  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [cachedNode, setCachedNode] = useState<FrictionNode | null>(node);
 
   useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
     if (node) {
-      setActiveNode(node);
-      setIsClosing(false);
-      sound.playMorseBurst();
-    } else if (activeNode && !isClosing) {
-      // Inicia saída fluida se o prop node virar null externamente
-      handleDismiss();
+      setCachedNode(node);
+      if (!dialog.open) {
+        dialog.showModal();
+        sound.playMorseBurst();
+      }
+    } else {
+      if (dialog.open) {
+        dialog.close();
+      }
     }
   }, [node]);
 
-  const handleDismiss = () => {
-    if (isClosing) return;
-    setIsClosing(true);
+  const handleClose = () => {
     sound.playTelegraphClick();
-    setTimeout(() => {
-      setActiveNode(null);
-      setIsClosing(false);
-      onClose();
-    }, 280);
+    dialogRef.current?.close();
   };
 
-  useEffect(() => {
-    if (activeNode) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') handleDismiss();
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [activeNode, isClosing]);
+  const handleNativeClose = () => {
+    onClose();
+  };
 
-  if (!activeNode) return null;
+  // Fallback de "Light Dismiss" para fechar ao clicar no backdrop (fora da área de conteúdo)
+  const handleDialogClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+    const dialog = dialogRef.current;
+    if (!dialog || event.target !== dialog) return;
+
+    const rect = dialog.getBoundingClientRect();
+    const isInside =
+      rect.top <= event.clientY &&
+      event.clientY <= rect.bottom &&
+      rect.left <= event.clientX &&
+      event.clientX <= rect.right;
+
+    if (!isInside) {
+      handleClose();
+    }
+  };
+
+  if (!cachedNode) return null;
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 transition-all duration-300 ease-editorial ${
-        isClosing ? 'opacity-0 pointer-events-none' : 'opacity-100'
-      }`}
+    <dialog
+      ref={dialogRef}
+      onClose={handleNativeClose}
+      onCancel={(e) => {
+        // Assegura disparo de som e fechamento fluido ao pressionar Esc
+        e.preventDefault();
+        handleClose();
+      }}
+      onClick={handleDialogClick}
+      aria-labelledby="telegraph-dialog-title"
+      aria-modal="true"
+      closedby="any"
+      className="modern-dialog"
     >
-      {/* Backdrop com desfoque e fade-in/fade-out cinematográfico */}
-      <div
-        className="absolute inset-0 bg-black/75 backdrop-blur-md transition-opacity duration-300 ease-editorial"
-        onClick={handleDismiss}
-      />
-
-      {/* Ficha Telegráfica Confidencial com transição fluida de escala e translação */}
-      <div
-        className={`relative z-10 w-full max-w-xl rounded-xl border border-stone-700/80 bg-[#15161a] text-stone-200 shadow-2xl overflow-hidden font-serif transform transition-all duration-300 ease-editorial ${
-          isClosing
-            ? 'scale-95 opacity-0 translate-y-4'
-            : 'scale-100 opacity-100 translate-y-0'
-        }`}
-      >
+      {/* Ficha Telegráfica Confidencial */}
+      <div className="w-full max-w-xl rounded-xl border border-stone-700/80 bg-[#15161a] text-stone-200 shadow-2xl overflow-hidden font-serif">
         {/* Cabeçalho de Fita Telegráfica Vitoriana */}
         <div className="bg-[#1f2127] border-b border-stone-700/60 p-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
-            <span className="font-mono text-[11px] tracking-[0.25em] text-amber-500 uppercase font-bold">
-              DESPACHO TELEGRÁFICO CONFIDENCIAL // {activeNode.year}
+            <span
+              id="telegraph-dialog-title"
+              className="font-mono text-[11px] tracking-[0.25em] text-amber-500 uppercase font-bold"
+            >
+              DESPACHO TELEGRÁFICO CONFIDENCIAL // {cachedNode.year}
             </span>
           </div>
           <button
-            onClick={handleDismiss}
+            onClick={handleClose}
             className="w-7 h-7 rounded-full bg-stone-800 text-stone-400 hover:text-white hover:bg-stone-700 flex items-center justify-center text-sm font-mono transition-colors cursor-pointer"
             title="Fechar despacho (Esc)"
           >
@@ -83,18 +94,18 @@ export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, on
         </div>
 
         {/* Corpo do Telegrama */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-6 sm:p-8 space-y-6 max-h-[75vh] overflow-y-auto">
           {/* Identificação de Posição e Forças */}
           <div>
             <div className="flex items-center justify-between text-xs text-stone-400 font-mono mb-1">
-              <span>REGIÃO: {activeNode.region}</span>
-              <span className="text-amber-400/90 font-bold">{activeNode.year}</span>
+              <span>REGIÃO: {cachedNode.region}</span>
+              <span className="text-amber-400/90 font-bold">{cachedNode.year}</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-serif text-stone-100 tracking-wide">
-              {activeNode.name}
+              {cachedNode.name}
             </h3>
             <p className="text-xs font-mono text-stone-400 mt-1">
-              Potências em Choque: <span className="text-stone-300">{activeNode.powers}</span>
+              Potências em Choque: <span className="text-stone-300">{cachedNode.powers}</span>
             </p>
           </div>
 
@@ -112,10 +123,10 @@ export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, on
               </button>
             </div>
             <blockquote className="italic font-serif text-sm text-stone-900 leading-relaxed mb-3">
-              {activeNode.primarySource.quote}
+              {cachedNode.primarySource.quote}
             </blockquote>
             <div className="text-right text-[10px] text-stone-600 font-bold">
-              — {activeNode.primarySource.author}, {activeNode.primarySource.date}
+              — {cachedNode.primarySource.author}, {cachedNode.primarySource.date}
             </div>
           </div>
 
@@ -125,7 +136,7 @@ export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, on
               <span>⚔</span> Choque Geopolítico e Causalidade
             </h4>
             <p className="text-xs sm:text-sm font-sans text-stone-300 leading-relaxed">
-              {activeNode.geopoliticalClash}
+              {cachedNode.geopoliticalClash}
             </p>
           </div>
 
@@ -134,7 +145,7 @@ export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, on
             <div className="text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
               <span>🏛</span> Raio-X das Bancas de Elite
             </div>
-            <p className="font-sans text-xs text-stone-300">{activeNode.bancaInsight}</p>
+            <p className="font-sans text-xs text-stone-300">{cachedNode.bancaInsight}</p>
           </div>
         </div>
 
@@ -144,13 +155,13 @@ export const TelegraphCardModal: React.FC<TelegraphCardModalProps> = ({ node, on
             Arquivo Desclassificado // Ministério das Relações Exteriores
           </span>
           <button
-            onClick={handleDismiss}
+            onClick={handleClose}
             className="px-4 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-mono transition-colors cursor-pointer"
           >
             Fechar Ficha
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };

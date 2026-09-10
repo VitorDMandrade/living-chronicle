@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { sound } from '../lib/audio';
 import { AVAILABLE_CHAPTERS } from '../data/chapters';
 
@@ -17,54 +17,90 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
   onToggle,
   onSelectChapter,
 }) => {
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (isOpen) {
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    } else {
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         sound.playTelegraphClick();
         onToggle();
-      } else if (e.key === 'Escape' && isOpen) {
-        sound.playTelegraphClick();
-        onClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, onToggle]);
+  }, [onToggle]);
+
+  const handleClose = () => {
+    sound.playTelegraphClick();
+    dialogRef.current?.close();
+  };
+
+  const handleNativeClose = () => {
+    onClose();
+  };
+
+  // Fallback de "Light Dismiss" para fechar ao clicar fora do conteúdo (no backdrop)
+  const handleDialogClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+    const dialog = dialogRef.current;
+    if (!dialog || event.target !== dialog) return;
+
+    const rect = dialog.getBoundingClientRect();
+    const isInside =
+      rect.top <= event.clientY &&
+      event.clientY <= rect.bottom &&
+      rect.left <= event.clientX &&
+      event.clientX <= rect.right;
+
+    if (!isInside) {
+      handleClose();
+    }
+  };
 
   return (
-    <>
-      {/* Backdrop com Blur Suave e Desvanecimento Contínuo */}
-      <div
-        onClick={() => {
-          sound.playTelegraphClick();
-          onClose();
-        }}
-        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-editorial ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      />
-
-      {/* Painel do Códice com Deslizamento Elástico Editorial */}
-      <aside
-        className={`fixed top-0 right-0 h-full w-full max-w-md z-50 bg-[#0c0d10] border-l border-stone-800/80 p-8 flex flex-col justify-between transform transition-transform duration-500 ease-editorial shadow-2xl ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
+    <dialog
+      ref={dialogRef}
+      onClose={handleNativeClose}
+      onCancel={(e) => {
+        e.preventDefault();
+        handleClose();
+      }}
+      onClick={handleDialogClick}
+      aria-labelledby="codex-drawer-title"
+      aria-modal="true"
+      closedby="any"
+      className="modern-drawer"
+    >
+      <div className="h-full w-full max-w-md bg-[#0c0d10] border-l border-stone-800/80 p-8 flex flex-col justify-between shadow-2xl">
         <div>
           <div className="flex items-center justify-between pb-6 border-b border-stone-900">
             <div>
               <p className="text-[10px] tracking-[0.25em] uppercase font-mono text-stone-500">
                 Arquivo Histórico & Epistêmico
               </p>
-              <h2 className="text-xl font-serif text-stone-200 mt-1">Códice de Lições</h2>
+              <h2 id="codex-drawer-title" className="text-xl font-serif text-stone-200 mt-1">
+                Códice de Lições
+              </h2>
             </div>
             <button
-              onClick={() => {
-                sound.playTelegraphClick();
-                onClose();
-              }}
+              onClick={handleClose}
               className="text-stone-500 hover:text-stone-200 text-sm font-mono p-2 transition-colors cursor-pointer"
+              title="Fechar Códice (Esc)"
             >
               ✕
             </button>
@@ -82,7 +118,7 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
                     if (!isAvailable) return;
                     sound.playWaxSealImpact();
                     onSelectChapter(chapter.id);
-                    onClose();
+                    handleClose();
                   }}
                   className={`relative p-5 rounded-lg border transition-all duration-300 ease-editorial ${
                     isSelected
@@ -124,7 +160,7 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
             Rolagem contínua sem recarga • Renderização 60 FPS
           </p>
         </div>
-      </aside>
-    </>
+      </div>
+    </dialog>
   );
 };
