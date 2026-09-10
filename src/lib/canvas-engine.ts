@@ -135,12 +135,13 @@ export class ChronicleCanvasEngine {
   }
 
   private renderCartographicStage(scrollProgress: number): void {
+    const isDesktop = this.width >= 1024;
     const offsetX = (this.smoothedMouse.x - 0.5) * 32;
     const offsetY = (this.smoothedMouse.y - 0.5) * 32;
 
-    const centerX = this.width * 0.55 + offsetX;
-    const centerY = this.height * 0.52 + offsetY;
-    const mapScale = Math.min(this.width, this.height) * 0.0018;
+    const centerX = (isDesktop ? this.width * 0.70 : this.width * 0.50) + offsetX;
+    const centerY = (isDesktop ? this.height * 0.50 : this.height * 0.45) + offsetY;
+    const mapScale = Math.min(this.width, this.height) * (isDesktop ? 0.0019 : 0.0015);
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
@@ -226,8 +227,9 @@ export class ChronicleCanvasEngine {
   }
 
   private renderBrassCompass(scrollProgress: number): void {
-    const compassX = this.width * 0.84 + (this.smoothedMouse.x - 0.5) * 45;
-    const compassY = this.height * 0.28 + (this.smoothedMouse.y - 0.5) * 45;
+    const isDesktop = this.width >= 1024;
+    const compassX = (isDesktop ? this.width * 0.88 : this.width * 0.85) + (this.smoothedMouse.x - 0.5) * 45;
+    const compassY = (isDesktop ? this.height * 0.18 : this.height * 0.22) + (this.smoothedMouse.y - 0.5) * 45;
 
     this.compassRotation = (this.smoothedMouse.x - 0.5) * 0.45 + scrollProgress * Math.PI * 0.25;
 

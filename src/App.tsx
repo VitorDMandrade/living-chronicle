@@ -6,7 +6,7 @@ import { DiplomaticDispatch } from './components/DiplomaticDispatch';
 import { ChapterDrawer } from './components/ChapterDrawer';
 import { FrictionNodesOverlay } from './components/FrictionNodesOverlay';
 import { TelegraphCardModal } from './components/TelegraphCardModal';
-import { FrictionNode } from './data/friction-nodes';
+import { FRICTION_NODES, FrictionNode } from './data/friction-nodes';
 import { IMPERIALISM_CHAPTER } from './data/imperialism-chapter';
 import { useScrollProgress } from './hooks/useScrollProgress';
 import { sound } from './lib/audio';
@@ -42,12 +42,23 @@ export function App() {
     }
   }, [activeActIndex, audioStarted]);
 
+  // Filtra nós relevantes para cada Ato didático
+  const getActNodes = (actIndex: number): FrictionNode[] => {
+    if (actIndex === 1) {
+      return FRICTION_NODES.filter((n) => ['suez', 'congo', 'fachoda'].includes(n.id));
+    }
+    if (actIndex === 2) {
+      return FRICTION_NODES.filter((n) => ['congo', 'transvaal'].includes(n.id));
+    }
+    return [];
+  };
+
   return (
     <div
       onClick={handleFirstInteraction}
-      className="min-h-screen bg-[#090a0c] text-[#ede5d8] relative selection:bg-amber-950 selection:text-amber-200 cursor-default"
+      className="min-h-screen bg-[#090a0c] text-[#ede5d8] relative selection:bg-amber-950 selection:text-amber-200 cursor-default overflow-x-hidden"
     >
-      {/* Palco Gráfico Unificado (Living Canvas Vídeo + Partilha de Berlim 2D) */}
+      {/* Palco Gráfico Unificado (Living Canvas Vídeo + Partilha de Berlim 2D no lado direito em Desktop) */}
       <StageCanvas
         scrollProgress={scrollProgress}
         videoSrc={`${import.meta.env.BASE_URL}assets/video/imperialism_bg.mp4`}
@@ -85,9 +96,16 @@ export function App() {
         onSelectChapter={(id) => setCurrentChapterId(id)}
       />
 
-      <main className="relative z-10 max-w-xl mx-auto px-6 pt-36 pb-48 space-y-[70vh]">
+      {/* Coluna Narrativa: Deslocada para a esquerda em desktop para nunca sobrepor o mapa tátil */}
+      <main className="relative z-10 max-w-xl w-full mx-auto lg:mx-0 lg:ml-12 xl:ml-20 2xl:ml-28 px-4 sm:px-6 pt-36 pb-48 space-y-[70vh]">
         {chapter.acts.map((act, idx) => (
-          <ActCard key={act.id} act={act} isActive={activeActIndex === idx} />
+          <ActCard
+            key={act.id}
+            act={act}
+            isActive={activeActIndex === idx}
+            nodes={getActNodes(idx)}
+            onSelectNode={(node) => setSelectedFrictionNode(node)}
+          />
         ))}
 
         {/* Despacho Diplomático com Chancela Tátil de Cera Fundida */}
