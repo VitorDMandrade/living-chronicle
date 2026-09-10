@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     watch: {
-      ignored: ['**/Arquivos do nexus/**', '**/public/assets/**', '**/*.mp4', '**/*.mp3']
+      ignored: ['**/Arquivos do nexus/**', '**/public/assets/**', '**/*.mp4', '**/*.mp3', '**/.agents/**', '**/.git/**']
     }
   }
 });
