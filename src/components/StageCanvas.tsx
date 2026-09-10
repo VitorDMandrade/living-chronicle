@@ -9,7 +9,7 @@ interface StageCanvasProps {
 
 export const StageCanvas: React.FC<StageCanvasProps> = ({
   scrollProgress,
-  videoSrc = '/assets/video/imperialism_bg.mp4',
+  videoSrc = `${import.meta.env.BASE_URL}assets/video/imperialism_bg.mp4`,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<ChronicleCanvasEngine | null>(null);

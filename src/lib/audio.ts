@@ -48,7 +48,7 @@ class SoundEngine {
   /**
    * Inicializa e orquestra a trilha sonora contínua em loop
    */
-  public mountBGM(audioUrl: string = '/assets/audio/imperialism_theme.mp3'): void {
+  public mountBGM(audioUrl: string = `${import.meta.env.BASE_URL}assets/audio/imperialism_theme.mp3`): void {
     if (this.bgmAudio) return;
 
     this.bgmAudio = new Audio(audioUrl);

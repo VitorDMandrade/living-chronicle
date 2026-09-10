@@ -28,7 +28,7 @@ export function App() {
   const handleFirstInteraction = () => {
     if (!audioStarted) {
       sound.startSteamDrone();
-      sound.mountBGM('/assets/audio/imperialism_theme.mp3');
+      sound.mountBGM(`${import.meta.env.BASE_URL}assets/audio/imperialism_theme.mp3`);
       sound.playTelegraphClick();
       setAudioStarted(true);
     }
@@ -50,7 +50,7 @@ export function App() {
       {/* Palco Gráfico Unificado (Living Canvas Vídeo + Partilha de Berlim 2D) */}
       <StageCanvas
         scrollProgress={scrollProgress}
-        videoSrc="/assets/video/imperialism_bg.mp4"
+        videoSrc={`${import.meta.env.BASE_URL}assets/video/imperialism_bg.mp4`}
       />
 
       {/* Vetores Cartográficos Táteis (Nós de Fricção no Ato II e Ato III) */}

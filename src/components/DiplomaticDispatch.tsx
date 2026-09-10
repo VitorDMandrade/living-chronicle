@@ -74,7 +74,7 @@ export const DiplomaticDispatch: React.FC = () => {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-20 mix-blend-screen"
-          src="/assets/video/wax_seal.mp4"
+          src={`${import.meta.env.BASE_URL}assets/video/wax_seal.mp4`}
         />
 
         {/* Marca d'água Imperial */}
