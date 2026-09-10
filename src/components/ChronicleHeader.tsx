@@ -37,13 +37,19 @@ export const ChronicleHeader: React.FC<ChronicleHeaderProps> = ({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-16 px-6 md:px-10 flex items-center justify-between pointer-events-none backdrop-blur-[2px] bg-gradient-to-b from-[#090a0c]/85 to-transparent border-b border-stone-800/30">
-      {/* Breadcrumb Histórico */}
+      {/* Breadcrumb Histórico com transição fluida */}
       <div className="pointer-events-auto flex items-center gap-3">
-        <span className="font-mono text-[10px] tracking-[0.25em] text-amber-600/90 uppercase font-semibold">
+        <span
+          key={actRoman}
+          className="font-mono text-[10px] tracking-[0.25em] text-amber-600/90 uppercase font-semibold animate-fadeIn"
+        >
           {actRoman}
         </span>
         <span className="w-1 h-1 rounded-full bg-stone-700" />
-        <span className="font-serif text-xs md:text-sm text-stone-300 tracking-wide">
+        <span
+          key={currentActTitle}
+          className="font-serif text-xs md:text-sm text-stone-300 tracking-wide animate-fadeIn"
+        >
           {currentActTitle}
         </span>
       </div>
@@ -52,10 +58,10 @@ export const ChronicleHeader: React.FC<ChronicleHeaderProps> = ({
       <div className="pointer-events-auto flex items-center gap-4">
         {/* Barra de Progresso Fina de Pergaminho */}
         <div className="hidden md:flex items-center gap-2 text-[10px] font-mono text-stone-500">
-          <span>{Math.round(scrollPercent)}%</span>
+          <span className="w-7 text-right">{Math.round(scrollPercent)}%</span>
           <div className="w-20 h-[2px] bg-stone-900 rounded-full overflow-hidden">
             <div
-              className="h-full bg-amber-700/80 transition-all duration-150"
+              className="h-full bg-amber-700/80 transition-all duration-300 ease-out"
               style={{ width: `${scrollPercent}%` }}
             />
           </div>

@@ -18,6 +18,10 @@
   --gold-emboss: #d4af37;          /* Brasão em relevo de bronze prensado */
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   background-color: var(--canvas-deep-void);
@@ -33,4 +37,9 @@ body {
 
 .font-mono {
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* Transições orgânicas de aceleração editorial */
+.ease-editorial {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }

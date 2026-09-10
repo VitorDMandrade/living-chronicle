@@ -107,9 +107,9 @@ export const DiplomaticDispatch: React.FC = () => {
               <div
                 key={opt.id}
                 onClick={() => handleSelect(opt.id)}
-                className={`p-5 rounded-lg border transition-all duration-300 cursor-pointer ${
+                className={`p-5 rounded-lg border transition-all duration-500 ease-editorial cursor-pointer ${
                   isChosen
-                    ? 'border-amber-700/80 bg-stone-900/80 shadow-[0_0_15px_rgba(198,155,63,0.15)]'
+                    ? 'border-amber-700/80 bg-stone-900/80 shadow-[0_0_20px_rgba(198,155,63,0.2)] scale-[1.01]'
                     : 'border-stone-800/60 bg-stone-950/40 hover:border-stone-700 hover:bg-stone-900/30'
                 } ${isSealed && !isChosen ? 'opacity-35 pointer-events-none' : ''}`}
               >
@@ -143,9 +143,9 @@ export const DiplomaticDispatch: React.FC = () => {
             <button
               onClick={handleSeal}
               disabled={!selectedId}
-              className={`group relative px-8 py-3.5 rounded-full font-mono text-xs uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-3 ${
+              className={`group relative px-8 py-3.5 rounded-full font-mono text-xs uppercase tracking-[0.2em] transition-all duration-500 ease-editorial flex items-center gap-3 ${
                 selectedId
-                  ? 'border border-amber-700/80 bg-gradient-to-r from-red-950 to-stone-900 text-stone-100 hover:scale-105 shadow-[0_0_20px_rgba(158,42,43,0.4)] cursor-pointer'
+                  ? 'border border-amber-700/80 bg-gradient-to-r from-red-950 to-stone-900 text-stone-100 hover:scale-105 shadow-[0_0_25px_rgba(158,42,43,0.5)] cursor-pointer'
                   : 'border border-stone-800 bg-stone-950/50 text-stone-600 cursor-not-allowed'
               } ${isPressing ? 'scale-95 brightness-125' : ''}`}
             >

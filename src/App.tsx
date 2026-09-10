@@ -112,13 +112,17 @@ export function App() {
         <DiplomaticDispatch />
       </main>
 
-      {scrollProgress < 0.85 && (
-        <footer className="fixed bottom-4 left-0 right-0 text-center pointer-events-none z-30 transition-opacity duration-500">
-          <span className="text-[10px] font-mono text-[#9c9486] uppercase tracking-widest">
-            Role para desdobrar a partilha colonial e as tensões geopolíticas
-          </span>
-        </footer>
-      )}
+      <footer
+        style={{
+          opacity: scrollProgress < 0.76 ? 1 : Math.max(0, 1 - (scrollProgress - 0.76) / 0.08),
+          transform: `translateY(${scrollProgress > 0.76 ? (scrollProgress - 0.76) * 30 : 0}px)`,
+        }}
+        className="fixed bottom-4 left-0 right-0 text-center pointer-events-none z-30 transition-all duration-700 ease-editorial"
+      >
+        <span className="text-[10px] font-mono text-[#9c9486] uppercase tracking-widest">
+          Role para desdobrar a partilha colonial e as tensões geopolíticas
+        </span>
+      </footer>
     </div>
   );
 }

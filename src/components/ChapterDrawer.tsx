@@ -34,20 +34,20 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
 
   return (
     <>
-      {/* Backdrop com Blur Suave */}
-      {isOpen && (
-        <div
-          onClick={() => {
-            sound.playTelegraphClick();
-            onClose();
-          }}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-        />
-      )}
+      {/* Backdrop com Blur Suave e Desvanecimento Contínuo */}
+      <div
+        onClick={() => {
+          sound.playTelegraphClick();
+          onClose();
+        }}
+        className={`fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-editorial ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      />
 
-      {/* Painel do Códice */}
+      {/* Painel do Códice com Deslizamento Elástico Editorial */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full max-w-md z-50 bg-[#0c0d10] border-l border-stone-800/80 p-8 flex flex-col justify-between transform transition-transform duration-500 ease-out shadow-2xl ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md z-50 bg-[#0c0d10] border-l border-stone-800/80 p-8 flex flex-col justify-between transform transition-transform duration-500 ease-editorial shadow-2xl ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -64,7 +64,7 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
                 sound.playTelegraphClick();
                 onClose();
               }}
-              className="text-stone-500 hover:text-stone-200 text-sm font-mono p-2 transition-colors"
+              className="text-stone-500 hover:text-stone-200 text-sm font-mono p-2 transition-colors cursor-pointer"
             >
               ✕
             </button>
@@ -84,11 +84,11 @@ export const ChapterDrawer: React.FC<ChapterDrawerProps> = ({
                     onSelectChapter(chapter.id);
                     onClose();
                   }}
-                  className={`relative p-5 rounded-lg border transition-all duration-300 ${
+                  className={`relative p-5 rounded-lg border transition-all duration-300 ease-editorial ${
                     isSelected
-                      ? 'border-amber-700/60 bg-stone-900/60'
+                      ? 'border-amber-700/60 bg-stone-900/60 scale-[1.02] shadow-lg'
                       : isAvailable
-                      ? 'border-stone-800/60 bg-stone-950/40 hover:border-stone-700 hover:bg-stone-900/40 cursor-pointer'
+                      ? 'border-stone-800/60 bg-stone-950/40 hover:border-stone-700 hover:bg-stone-900/40 cursor-pointer hover:scale-[1.01]'
                       : 'border-stone-900/40 bg-stone-950/20 opacity-40 cursor-not-allowed'
                   }`}
                 >

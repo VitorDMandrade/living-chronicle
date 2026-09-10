@@ -28,6 +28,7 @@ export class ChronicleCanvasEngine {
   private particles: Particle[] = [];
   private animFrameId: number | null = null;
   private smoothedMouse = { x: 0.5, y: 0.5 };
+  private smoothedScroll: number = 0;
   private compassRotation: number = 0;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -76,9 +77,10 @@ export class ChronicleCanvasEngine {
   public render(params: CanvasSceneParams): void {
     const { scrollProgress, mouseX, mouseY } = params;
 
-    // Interpolação suave do mouse (Inércia física de 0.05)
+    // Interpolação suave do mouse e do scroll (Inércia física)
     this.smoothedMouse.x += (mouseX - this.smoothedMouse.x) * 0.05;
     this.smoothedMouse.y += (mouseY - this.smoothedMouse.y) * 0.05;
+    this.smoothedScroll += (scrollProgress - this.smoothedScroll) * 0.08;
 
     // 1. Limpeza translúcida para manter o vídeo do Google Flow visível
     this.ctx.clearRect(0, 0, this.width, this.height);
@@ -103,7 +105,7 @@ export class ChronicleCanvasEngine {
     this.renderCartographicStage(scrollProgress);
 
     // 4. Compasso Geodésico Imperial de latão oscilando com o cursor
-    this.renderBrassCompass(scrollProgress);
+    this.renderBrassCompass();
   }
 
   private renderAtmosphericDust(): void {
@@ -179,11 +181,18 @@ export class ChronicleCanvasEngine {
     this.ctx.closePath();
     this.ctx.stroke();
 
-    // --- LINHAS DA PARTILHA DE BERLIM (Ato II e Ato III) ---
-    if (scrollProgress > 0.32) {
-      const partitionFactor = Math.min(1.0, (scrollProgress - 0.32) / 0.38);
+    // --- LINHAS DA PARTILHA DE BERLIM (Ato II e Ato III) com Fade-in e Fade-out Contínuos ---
+    if (scrollProgress > 0.26 && scrollProgress < 0.90) {
+      let lineAlpha = 1;
+      if (scrollProgress < 0.35) {
+        lineAlpha = (scrollProgress - 0.26) / 0.09;
+      } else if (scrollProgress > 0.82) {
+        lineAlpha = Math.max(0, 1 - (scrollProgress - 0.82) / 0.08);
+      }
+      const partitionFactor = Math.min(1.0, Math.max(0, (scrollProgress - 0.28) / 0.38));
 
       this.ctx.save();
+      this.ctx.globalAlpha = lineAlpha;
       this.ctx.strokeStyle = '#9e2a2b'; // Vermelho Carmesim Colonial
       this.ctx.lineWidth = 2.0;
       this.ctx.setLineDash([7, 5]);
@@ -195,8 +204,8 @@ export class ChronicleCanvasEngine {
       this.ctx.stroke();
 
       // Linha 2: Partilha Norte / África Ocidental
-      if (partitionFactor > 0.4) {
-        const subFactor = (partitionFactor - 0.4) / 0.6;
+      if (partitionFactor > 0.3) {
+        const subFactor = Math.min(1.0, (partitionFactor - 0.3) / 0.6);
         this.ctx.beginPath();
         this.ctx.moveTo(-110, -80);
         this.ctx.lineTo(-110 + 120 * subFactor, -80 + 30 * subFactor);
@@ -204,8 +213,11 @@ export class ChronicleCanvasEngine {
       }
 
       // Linha 3: O Eixo Cairo-Cabo Britânico (Ato III - Tensão Máxima)
-      if (scrollProgress > 0.68) {
-        const cairoFactor = Math.min(1.0, (scrollProgress - 0.68) / 0.28);
+      if (scrollProgress > 0.62) {
+        const cairoAlpha = Math.min(1.0, (scrollProgress - 0.62) / 0.08);
+        const cairoFactor = Math.min(1.0, (scrollProgress - 0.64) / 0.26);
+        this.ctx.save();
+        this.ctx.globalAlpha = lineAlpha * cairoAlpha;
         this.ctx.strokeStyle = '#c69b3f'; // Latão de conflito interimperialista
         this.ctx.beginPath();
         this.ctx.moveTo(70, -160);
@@ -214,10 +226,11 @@ export class ChronicleCanvasEngine {
 
         // Nós de Tensão Pulsantes (Fachoda e Transvaal)
         const pulse = 0.5 + Math.sin(Date.now() * 0.005) * 0.5;
-        this.ctx.fillStyle = `rgba(158, 42, 43, ${0.4 + pulse * 0.4})`;
+        this.ctx.fillStyle = `rgba(158, 42, 43, ${(0.4 + pulse * 0.4) * cairoAlpha})`;
         this.ctx.beginPath();
-        this.ctx.arc(60, -30, 4.5 + pulse * 2, 0, Math.PI * 2);
+        this.ctx.arc(60, -30, (4.5 + pulse * 2) * cairoAlpha, 0, Math.PI * 2);
         this.ctx.fill();
+        this.ctx.restore();
       }
 
       this.ctx.restore();
@@ -226,12 +239,12 @@ export class ChronicleCanvasEngine {
     this.ctx.restore();
   }
 
-  private renderBrassCompass(scrollProgress: number): void {
+  private renderBrassCompass(): void {
     const isDesktop = this.width >= 1024;
     const compassX = (isDesktop ? this.width * 0.88 : this.width * 0.85) + (this.smoothedMouse.x - 0.5) * 45;
     const compassY = (isDesktop ? this.height * 0.18 : this.height * 0.22) + (this.smoothedMouse.y - 0.5) * 45;
 
-    this.compassRotation = (this.smoothedMouse.x - 0.5) * 0.45 + scrollProgress * Math.PI * 0.25;
+    this.compassRotation = (this.smoothedMouse.x - 0.5) * 0.45 + this.smoothedScroll * Math.PI * 0.25;
 
     this.ctx.save();
     this.ctx.translate(compassX, compassY);
