@@ -6,6 +6,7 @@ interface ChronicleHeaderProps {
   actRoman: string;
   scrollPercent: number;
   onOpenCodex: () => void;
+  onOpenQuiz?: () => void;
 }
 
 export const ChronicleHeader: React.FC<ChronicleHeaderProps> = ({
@@ -13,6 +14,7 @@ export const ChronicleHeader: React.FC<ChronicleHeaderProps> = ({
   actRoman,
   scrollPercent,
   onOpenCodex,
+  onOpenQuiz,
 }) => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -96,6 +98,24 @@ export const ChronicleHeader: React.FC<ChronicleHeaderProps> = ({
           </span>
           <span className="hidden sm:inline">{isPlayingAudio ? 'Sinfonia Ativa' : 'Trilha Oculta'}</span>
         </button>
+
+        {/* Botão Direto para o Simulado de Vestibular */}
+        {onOpenQuiz && (
+          <button
+            onClick={() => {
+              sound.playTelegraphClick();
+              onOpenQuiz();
+            }}
+            title="Abrir Simulado com Questões Oficiais do ENEM, FUVEST, UNICAMP e UNESP"
+            className="group flex items-center gap-2 px-3 py-1 rounded-full border border-amber-600/70 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 hover:border-amber-400 transition-all duration-200 cursor-pointer shadow-[0_0_12px_rgba(217,119,6,0.2)]"
+          >
+            <span className="text-xs">🎯</span>
+            <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Simulado</span>
+            <span className="hidden lg:inline text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200 font-mono">
+              ENEM/FUVEST
+            </span>
+          </button>
+        )}
 
         {/* Seletor Códice */}
         <button

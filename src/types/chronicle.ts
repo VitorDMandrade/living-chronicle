@@ -5,13 +5,30 @@ export interface SceneParams {
   cameraZoom: number;        // 1 a 1.3
 }
 
+export interface ComparativeRow {
+  label: string;
+  valA: string;
+  valB: string;
+}
+
+export interface ComparativeStudyTable {
+  title: string;
+  colA: string;
+  colB: string;
+  rows: ComparativeRow[];
+}
+
 export interface ChronicleAct {
   id: string;
   actBadge: string;
+  vestibularTags: string[];
   title: string;
   historicalContext: string;
+  keyConcepts: string[];
   causalChain: string[];
+  examAnalysis: string;
   examTrap: string;
+  comparativeTable?: ComparativeStudyTable;
   sceneParams: SceneParams;
 }
 
@@ -23,3 +40,4 @@ export interface ChronicleChapter {
   subtitle: string;
   acts: ChronicleAct[];
 }
+
